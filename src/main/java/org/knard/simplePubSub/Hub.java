@@ -41,7 +41,7 @@ public class Hub {
 		for (int i = 0; i < topicParts.length; i++) {
 			final String topicPart = topicParts[i];
 			if ("*".equals(topicPart)) {
-				matchers[i] = new WildcardMatcher();
+				matchers[i] = WildcardMatcher.INSTANCE;
 			}
 			else {
 				matchers[i] = new NameMatcher(topicPart);
