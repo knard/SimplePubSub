@@ -3,14 +3,15 @@ package org.knard.simplePubSub;
 import java.util.Set;
 
 import org.knard.SimpleInject.Context;
-import org.knard.SimpleInject.DI;
+import org.knard.SimpleInject.InvokerRepository;
 import org.knard.SimpleInject.Invoker;
+import org.knard.SimpleInject.InvokerRepositoryCached;
 
 public class Hub {
 
 	private final TreeNode root = new TreeNode();
 
-	private final DI di = new DI();
+	private final InvokerRepository invokerRepository = new InvokerRepositoryCached();
 
 	public void subscribe(final String topic, final Object handler) {
 		final Matcher[] matchers = createMatcher(topic);
@@ -25,7 +26,7 @@ public class Hub {
 	public void publish(final String topic, final Context ctx) {
 		final Set<Object> handlers = match(topic);
 		for (final Object handler : handlers) {
-			final Invoker invoker = this.di.getInvoker(handler.getClass());
+			final Invoker invoker = this.invokerRepository.getInvoker(handler.getClass());
 			invoker.invokeInContext(ctx, handler);
 		}
 	}
