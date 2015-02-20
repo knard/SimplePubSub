@@ -1,8 +1,6 @@
 package org.knard.simplePubSub;
 
 import java.util.LinkedList;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import org.knard.SimpleInject.Context;
 
@@ -27,13 +25,17 @@ public class HubHolder {
 				synchronized (HubHolder.queue) {
 					if (HubHolder.queue.size() > 0) {
 						e = HubHolder.queue.pollFirst();
-						HubHolder.hub.publish(e.topic, e.ctx);
+						try {
+							HubHolder.hub.publish(e.topic, e.ctx);
+						} catch (PublishingException e1) {
+							e1.printStackTrace();
+						}
 					} else {
 						try {
 							HubHolder.queue.wait();
 						} catch (final InterruptedException e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
+							return;
 						}
 					}
 				}
@@ -55,12 +57,12 @@ public class HubHolder {
 		HubHolder.threadInstance.interrupt();
 	}
 
-	public static void publish(final String topic, final Context ctx) {
+	public static void publish(final String topic, final Context ctx) throws PublishingException {
 		publish(topic, ctx, true);
 	}
 
 	public static void publish(final String topic, final Context ctx,
-			final boolean synchronous) {
+			final boolean synchronous) throws PublishingException {
 		if (synchronous) {
 			HubHolder.hub.publish(topic, ctx);
 		} else {

@@ -3,6 +3,7 @@ package org.knard.simplePubSub;
 import java.util.Set;
 
 import org.knard.SimpleInject.Context;
+import org.knard.SimpleInject.InvocationException;
 import org.knard.SimpleInject.InvokerRepository;
 import org.knard.SimpleInject.Invoker;
 import org.knard.SimpleInject.InvokerRepositoryCached;
@@ -23,11 +24,15 @@ public class Hub {
 		remove(matchers, handler);
 	}
 
-	public void publish(final String topic, final Context ctx) {
+	public void publish(final String topic, final Context ctx) throws PublishingException {
 		final Set<Object> handlers = match(topic);
 		for (final Object handler : handlers) {
 			final Invoker invoker = this.invokerRepository.getInvoker(handler.getClass());
-			invoker.invokeInContext(ctx, handler);
+			try {
+				invoker.invokeInContext(ctx, handler);
+			} catch (InvocationException e) {
+				throw new PublishingException(e);
+			}
 		}
 	}
 
